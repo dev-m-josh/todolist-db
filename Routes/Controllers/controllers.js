@@ -27,8 +27,7 @@ function getSingleTodo(req, res) {
 //ADD A NEW TODO
 function addNewTodo(req, res) {
     let addedTodo = req.body;
-    console.log(addedTodo);
-    new sql.Request().query(`INSERT INTO todos(todo_title, todo_description, todo_deadline, todo_status) Values('exersice', 'Do some jogging and pullups', '2024/10/2', 1)`, (err, result)=>{
+    new sql.Request().query(`INSERT INTO todos(todo_title, todo_description, todo_deadline, todo_status) Values('${addedTodo.todo_title}', '${addedTodo.todo_description}', '${addedTodo.todo_deadline}', '${addedTodo.todo_status}')`, (err, result)=>{
         if (err) {
             console.log("error occured in query", err ); 
         } else {
