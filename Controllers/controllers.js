@@ -1,5 +1,5 @@
-const sql = require("mssql");
 
+const sql = require("mssql");
 
 //GET ALL TODOS
 function getAllTodos(req, res) {
@@ -27,7 +27,7 @@ function getSingleTodo(req, res) {
 //ADD A NEW TODO
 function addNewTodo(req, res) {
     let addedTodo = req.body;
-    new sql.Request().query(`INSERT INTO todos(todo_title, todo_description, todo_deadline, todo_status) Values('${addedTodo.todo_title}', '${addedTodo.todo_description}', '${addedTodo.todo_deadline}', '${addedTodo.todo_status}')`, (err, result)=>{
+    new sql.Request().query(`INSERT INTO todos(user_id, todo_title, todo_description, todo_deadline, todo_status) Values('${addedTodo.user_id}','${addedTodo.todo_title}', '${addedTodo.todo_description}', '${addedTodo.todo_deadline}', '${addedTodo.todo_status}')`, (err, result)=>{
         if (err) {
             console.log("error occured in query", err ); 
         } else {
@@ -40,20 +40,12 @@ function addNewTodo(req, res) {
     });
 };
 
-//DELETE A SINGLE TODO
+//DELETE A SINGLE TODO BASED ON I'TS ID
 function deleteSingleTodo(req, res) {
     let requestedId = req.params.todoId;
     new sql.Request().query(`DELETE FROM todos WHERE todo_id = ${requestedId};`, (err, result)=>{
         if (err) {
             console.log("error occured in query", err ); 
-        }
-        
-        if (!requestedId) {
-            res.json({
-                success: false,
-                message: "Todo not found!"
-            });
-            return;
         };
             res.json({
                 success: true,
@@ -63,6 +55,27 @@ function deleteSingleTodo(req, res) {
     });
 };
 
+//EDITING A TODO
+function editTodo(req, res) {
+    let todoToEditId = req.params.todoId;
+    let todoEdits = req.body;
+
+    new sql.Request().query(`
+        UPDATE todos
+        SET user_id =  '${todoEdits.user_id}',  todo_title = '${todoEdits.title}', todo_description = '${todoEdits.description}', todo_status = ${todoEdits.status}
+        WHERE todo_id = '${todoToEditId}'`, (err, result)=>{
+            if (err) {
+                console.log("Error occured in query", err)
+            }else{
+                res.json({
+                    success: true,
+                    message: "Edit was successfully done.",
+                    rowsAffected: result.rowsAffected
+                });
+            };
+        });
+};
 
 
-module.exports = { getAllTodos, getSingleTodo, addNewTodo, deleteSingleTodo };
+
+module.exports = { getAllTodos, getSingleTodo, addNewTodo, deleteSingleTodo, editTodo };

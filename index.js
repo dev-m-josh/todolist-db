@@ -3,7 +3,7 @@ const sql  =require("mssql");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-const { router } = require("./Routes/routes");
+const { router } = require("./Routers/routers");
 app.use(router);
 
 const config = {
