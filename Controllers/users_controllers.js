@@ -15,7 +15,7 @@ function getAllUsers(req, res) {
 };
 
 //GET SINGLE USER
-function getSingleUser(req, res) {
+function getSingleUserById(req, res) {
     let requestedUser = req.params.userId;
     new sql.Request().query(`select user_name, user_email from users where user_id = ${requestedUser}`, (err, result)=>{
         if (err) {
@@ -45,7 +45,7 @@ VALUES ('${addedUser.user_name}', '${addedUser.user_email}')`, (err, result)=>{
 };
 
 //DELETE A SINGLE USER BASED ON ID
-function deleteSingleUser(req, res) {
+function deleteSingleUserById(req, res) {
     let requestedId = req.params.userId;
     new sql.Request().query(`DELETE FROM users WHERE user_id = ${requestedId};`, (err, result)=>{
         if (err) {
@@ -79,4 +79,4 @@ function editUser(req, res) {
         });
 };
 
-module.exports = { addNewUser, getAllUsers, editUser, deleteSingleUser, getSingleUser }
+module.exports = { getAllUsers, getSingleUserById, addNewUser, deleteSingleUserById, editUser }

@@ -15,7 +15,7 @@ function getAllTodos(req, res) {
 };
 
 //GET TODO BY TODO_ID
-function getSingleTodo(req, res) {
+function getSingleTodoById(req, res) {
     let requestedId = req.params.todoId;
     new sql.Request().query(`select * from todos where todo_id = ${requestedId}`, (err, result)=>{
         if (err) {
@@ -43,7 +43,7 @@ function addNewTodo(req, res) {
 };
 
 //DELETE A SINGLE TODO BASED ON I'TS ID
-function deleteSingleTodo(req, res) {
+function deleteSingleTodoById(req, res) {
     let requestedId = req.params.todoId;
     new sql.Request().query(`DELETE FROM todos WHERE todo_id = ${requestedId};`, (err, result)=>{
         if (err) {
@@ -96,4 +96,4 @@ WHERE user_id = ${requestedUser} ORDER BY todo_id OFFSET ${offset} ROWS FETCH NE
 
 
 
-module.exports = { getAllTodos, getSingleTodo, addNewTodo, deleteSingleTodo, editTodo, specificUserTodos };
+module.exports = { getAllTodos, getSingleTodoById, addNewTodo, deleteSingleTodoById, editTodo, specificUserTodos };

@@ -1,12 +1,12 @@
 
 const router = require("express").Router();
-const { getAllTodos, getSingleTodo, addNewTodo, deleteSingleTodo, editTodo, specificUserTodos} = require("../Controllers/todo_controllers");
+const { getAllTodos, getSingleTodoById, addNewTodo, deleteSingleTodoById, editTodo, specificUserTodos} = require("../Controllers/todo_controllers");
 
 //TODOS ROUTES
 router.get('/todos', getAllTodos);
-router.get('/todos/:todoId', getSingleTodo);
+router.get('/todos/:todoId', getSingleTodoById);
 router.post('/todos', addNewTodo);
-router.delete('/todos/:todoId', deleteSingleTodo);
+router.delete('/todos/:todoId', deleteSingleTodoById);
 router.post('/todos/:todoId', editTodo);
 router.get('/todos/user/:userId', specificUserTodos);
 
