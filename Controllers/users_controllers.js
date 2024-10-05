@@ -1,5 +1,6 @@
 
 const sql = require("mssql");
+const bcrypt = require('bcrypt');
 
 //GET ALL USERS
 function getAllUsers(req, res) {
@@ -17,7 +18,7 @@ function getAllUsers(req, res) {
 //GET SINGLE USER
 function getSingleUserById(req, res) {
     let requestedUser = req.params.userId;
-    new sql.Request().query(`select user_name, user_email from users where user_id = ${requestedUser}`, (err, result)=>{
+    new sql.Request().query(`select user_name, user_email, user_password from users where user_id = ${requestedUser}`, (err, result)=>{
         if (err) {
             console.log("error occured in query", err ); 
         } else {
@@ -30,8 +31,8 @@ function getSingleUserById(req, res) {
 //ADDING A USER
 function addNewUser(req, res) {
     let addedUser = req.body;
-    new sql.Request().query(`INSERT INTO users(user_name, user_email)
-VALUES ('${addedUser.user_name}', '${addedUser.user_email}')`, (err, result)=>{
+    new sql.Request().query(`INSERT INTO users(user_name, user_email, user_password)
+VALUES ('${addedUser.user_name}', '${addedUser.user_email}', '${addedUser.user_password}')`, (err, result)=>{
     if (err) {
         console.log("error occured in query", err ); 
     } else {
@@ -66,7 +67,7 @@ function editUser(req, res) {
 
     new sql.Request().query(`
         UPDATE users
-        SET user_name = '${userEdits.user_name}', user_email = '${userEdits.user_email}' WHERE user_id = '${userToEditId}'`, (err, result)=>{
+        SET user_name = '${userEdits.user_name}', user_email = '${userEdits.user_email}', user_password = '${userEdits.user_password}' WHERE user_id = '${userToEditId}'`, (err, result)=>{
             if (err) {
                 console.log("Error occured in query", err)
             }else{
@@ -79,4 +80,41 @@ function editUser(req, res) {
         });
 };
 
-module.exports = { getAllUsers, getSingleUserById, addNewUser, deleteSingleUserById, editUser }
+//USER LOGIN
+async function loginUser(req, res) {
+    let userDetails = req.body;
+    //let encryptPassword = await bcrypt.hash(userDetails.user_password, 5)
+    //console.log(encryptPassword);
+    let requestedUser =  await new sql.Request().query(`select * from  users where user_email = '${userDetails.user_email}'`);
+    let user = requestedUser.recordset[0];
+
+    if (!user) {
+        res.json({
+            success: false,
+            message: "User not found!"
+        });
+        return;
+    };
+
+    try {
+        let passwordComparisson = await bcrypt.compare(userDetails.user_password, user.user_password);
+
+        if (passwordComparisson) {
+            res.json({
+                Message:'logged successfully'
+            });
+    
+        }else{
+            res.json({
+                Message:'Wrong creditials!'
+            });
+        };
+    
+    } catch (error) {
+        res.status(500).json(error,{
+            Message:'Internal sever error'
+        });
+    };
+};
+
+module.exports = { getAllUsers, getSingleUserById, addNewUser, deleteSingleUserById, editUser, loginUser }
