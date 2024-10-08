@@ -8,8 +8,6 @@ const { userRouter } = require("./Routers/users_routers");
 const { authRouter } = require("./Routers/auth_routers");
 const { verifyToken } = require('./middleware/middleware');
 
-
-
 app.use(authRouter);
 app.use(verifyToken);
 app.use(userRouter);
