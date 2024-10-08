@@ -1,6 +1,8 @@
 
 const sql = require("mssql");
 const bcrypt = require('bcrypt');
+//const {getToken} = require('../utils/utils')
+const jwt = require('jsonwebtoken')
 
 //GET ALL USERS
 function getAllUsers(req, res) {
@@ -44,6 +46,7 @@ VALUES ('${addedUser.user_name}', '${addedUser.user_email}', '${addedUser.user_p
     };
 });
 };
+
 
 //DELETE A SINGLE USER BASED ON ID
 function deleteSingleUserById(req, res) {
@@ -96,14 +99,17 @@ async function loginUser(req, res) {
         return;
     };
 
+    let token = await jwt.sign({user}, 'secretkey');
+
+
     try {
         let passwordComparisson = await bcrypt.compare(userDetails.user_password, user.user_password);
 
         if (passwordComparisson) {
             res.json({
-                Message:'logged successfully'
+                Message:'logged successfully',
+                token
             });
-    
         }else{
             res.json({
                 Message:'Wrong creditials!'
@@ -115,6 +121,11 @@ async function loginUser(req, res) {
             Message:'Internal sever error'
         });
     };
+    
 };
+
+
+
+
 
 module.exports = { getAllUsers, getSingleUserById, addNewUser, deleteSingleUserById, editUser, loginUser }

@@ -3,10 +3,17 @@ const sql  =require("mssql");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-const { router } = require("./Routers/todo_routers");
+const { todoRouter } = require("./Routers/todo_routers");
 const { userRouter } = require("./Routers/users_routers");
-app.use(router);
+const { authRouter } = require("./Routers/auth_routers");
+const { verifyToken } = require('./middleware/middleware');
+
+
+
+app.use(authRouter);
+app.use(verifyToken);
 app.use(userRouter);
+app.use(todoRouter);
 
 const config = {
     user: "sa",
