@@ -22,9 +22,16 @@ try {
 
 };
 
+function routesErrorHandler(req, res) {
+    res.json({
+        success: false,
+        message: "Route not defined!"
+    })
+}
+
 
 function errorHandler(err, req, res, next){
     res.sendStatus(err.status);
 };
 
-module.exports = { verifyToken, errorHandler }
+module.exports = { verifyToken, errorHandler, routesErrorHandler }

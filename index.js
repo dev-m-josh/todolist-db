@@ -6,14 +6,15 @@ app.use(express.urlencoded({extended:true}));
 const { todoRouter } = require("./Routers/todo_routers");
 const { userRouter } = require("./Routers/users_routers");
 const { authRouter } = require("./Routers/auth_routers");
-const { verifyToken, errorHandler } = require('./middleware/middleware');
+const { verifyToken, errorHandler, routesErrorHandler } = require('./middleware/middleware');
+
 
 app.use(authRouter);
 app.use(verifyToken);
 app.use(userRouter);
 app.use(todoRouter);
 app.use(errorHandler);
-
+app.get('*', routesErrorHandler );
 
 
 const config = {
