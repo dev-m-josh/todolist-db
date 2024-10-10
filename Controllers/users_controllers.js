@@ -21,6 +21,17 @@ function getAllUsers(req, res) {
 function getSingleUserById(req, res) {
     let requestedUser = req.params.userId;
     new sql.Request().query(`select user_name, user_email, user_password from users where user_id = ${requestedUser}`, (err, result)=>{
+
+        //CHECK IF REQUESTED USER IS AVAILABLE
+        if (result.recordset[0] === undefined) {
+            res.json({
+                success: false,
+                message: "User not found!"
+            });
+            return
+        };
+
+        //CHECK ERROR AND RESPONSE
         if (err) {
             console.log("error occured in query", err ); 
         } else {
@@ -69,9 +80,22 @@ VALUES ('${addedUser.user_name}', '${addedUser.user_email}', '${addedUser.user_p
 function deleteSingleUserById(req, res) {
     let requestedId = req.params.userId;
     new sql.Request().query(`DELETE FROM users WHERE user_id = ${requestedId};`, (err, result)=>{
+
+        //ERROR CHECK
         if (err) {
             console.log("error occured in query", err ); 
         };
+
+        //CHECK IF REQUESTED USER IS AVAILABLE
+        if (result.recordset === undefined) {
+            res.json({
+                success: false,
+                message: "User not found!"
+            });
+            return
+        };
+
+        //RESPONSE
             res.json({
                 success: true,
                 message: "User deleted successfully!",

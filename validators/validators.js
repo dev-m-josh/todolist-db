@@ -1,6 +1,7 @@
 
 const joi = require('joi');
 
+//VALIDATOR FUNCTION
 const validator = (schema) => (payload) => schema.validate(payload, {abortEarly: false});
 
 //LOGIN SCHEMA
@@ -26,9 +27,8 @@ const newTodoSchema = joi.object({
     todo_status:joi.number().required()
 });
 
-//EDIT USER SCHEMA
-
+//VALIDATE ALL SCHEMAS
 let validateLogin = validator(loginSchema);
 let validateNewUser = validator(newUserSchema);
 let validateNewTodo = validator(newTodoSchema);
- module.exports = { validateLogin, validateNewUser, validateNewTodo };
+module.exports = { validateLogin, validateNewUser, validateNewTodo };

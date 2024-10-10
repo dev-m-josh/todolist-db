@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 
+//VERIFY TOKEN
 function verifyToken(req, res, next) {
 try {
     const bearerHeader = req.headers['authorization'];
@@ -22,6 +23,7 @@ try {
 
 };
 
+//handle error of undefine route
 function routesErrorHandler(req, res) {
     res.json({
         success: false,
@@ -29,7 +31,7 @@ function routesErrorHandler(req, res) {
     })
 }
 
-
+//handle all errors
 function errorHandler(err, req, res, next){
     res.sendStatus(err.status);
 };

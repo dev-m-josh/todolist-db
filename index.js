@@ -14,7 +14,7 @@ app.use(verifyToken);
 app.use(userRouter);
 app.use(todoRouter);
 app.use(errorHandler);
-app.get('*', routesErrorHandler );
+app.use('*', routesErrorHandler );
 
 
 const config = {
@@ -28,6 +28,7 @@ const config = {
     }
 };
 
+//CONNECT TO DATABASE
 sql.connect(config, err =>{
     if (err) {
         throw err;
