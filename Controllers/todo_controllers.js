@@ -1,5 +1,6 @@
 
 const sql = require("mssql");
+const { validateNewTodo } = require('../validators/validators');
 
 //GET ALL TODOS
 function getAllTodos(req, res) {
@@ -29,7 +30,23 @@ function getSingleTodoById(req, res) {
 //ADD A NEW TODO
 function addNewTodo(req, res) {
     let addedTodo = req.body;
+    if (addedTodo.todo_title === undefined) {
+        res.json({
+            success: false,
+            message: "No details passed!"
+        })
+        return
+    };
+
     new sql.Request().query(`INSERT INTO todos(user_id, todo_title, todo_description, todo_deadline, todo_status) Values('${addedTodo.user_id}','${addedTodo.todo_title}', '${addedTodo.todo_description}', '${addedTodo.todo_deadline}', '${addedTodo.todo_status}')`, (err, result)=>{
+
+        const {error, value} = validateNewTodo(addedTodo);
+        if (error) {
+            console.log(error);
+            res.send(error.details);
+            return;
+        }
+
         if (err) {
             console.log("error occured in query", err ); 
         } else {

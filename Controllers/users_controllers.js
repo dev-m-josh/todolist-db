@@ -1,8 +1,8 @@
 
 const sql = require("mssql");
 const bcrypt = require('bcrypt');
-//const {getToken} = require('../utils/utils')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { validateLogin, validateNewUser } = require('../validators/validators');
 
 //GET ALL USERS
 function getAllUsers(req, res) {
@@ -33,8 +33,25 @@ function getSingleUserById(req, res) {
 //ADDING A USER
 function addNewUser(req, res) {
     let addedUser = req.body;
+    if (addedUser.user_name === undefined) {
+        res.json({
+            success: false,
+            message: "No details passed!"
+        });
+        return;
+    }
+
     new sql.Request().query(`INSERT INTO users(user_name, user_email, user_password)
 VALUES ('${addedUser.user_name}', '${addedUser.user_email}', '${addedUser.user_password}')`, (err, result)=>{
+
+//validation
+    const {error, value} = validateNewUser(addedUser);
+    if (error) {
+        console.log(error);
+        res.send(error.details);
+        return;
+    }
+
     if (err) {
         console.log("error occured in query", err ); 
     } else {
@@ -88,9 +105,18 @@ async function loginUser(req, res) {
     let userDetails = req.body;
     //let encryptPassword = await bcrypt.hash(userDetails.user_password, 5)
     //console.log(encryptPassword);
-    let requestedUser =  await new sql.Request().query(`select * from  users where user_email = '${userDetails.user_email}'`);
+    let requestedUser =  await new sql.Request().query(`select user_name, user_email, user_password from  users where user_email = '${userDetails.user_email}'`);
     let user = requestedUser.recordset[0];
 
+//validation
+    const {error, value} = validateLogin(userDetails);
+if (error) {
+    console.log(error);
+    res.send(error.details);
+    return;
+}
+
+//response
     if (!user) {
         res.json({
             success: false,
@@ -124,8 +150,4 @@ async function loginUser(req, res) {
     
 };
 
-
-
-
-
-module.exports = { getAllUsers, getSingleUserById, addNewUser, deleteSingleUserById, editUser, loginUser }
+module.exports = { getAllUsers, getSingleUserById, addNewUser, deleteSingleUserById, editUser, loginUser };
