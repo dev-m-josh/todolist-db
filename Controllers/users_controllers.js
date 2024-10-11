@@ -2,7 +2,7 @@
 const sql = require("mssql");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { validateLogin, validateNewUser } = require('../validators/validators');
+const { loginSchema, newUserSchema } = require('../validators/validators');
 
 //GET ALL USERS
 function getAllUsers(req, res) {
@@ -28,7 +28,7 @@ function getSingleUserById(req, res) {
                 success: false,
                 message: "User not found!"
             });
-            return
+            return;
         };
 
         //CHECK ERROR AND RESPONSE
@@ -44,25 +44,19 @@ function getSingleUserById(req, res) {
 //ADDING A USER
 function addNewUser(req, res) {
     let addedUser = req.body;
-    if (addedUser.user_name === undefined) {
-        res.json({
-            success: false,
-            message: "No details passed!"
-        });
-        return;
-    }
 
-    new sql.Request().query(`INSERT INTO users(user_name, user_email, user_password)
-VALUES ('${addedUser.user_name}', '${addedUser.user_email}', '${addedUser.user_password}')`, (err, result)=>{
+ //validation
+ const {error, value} = newUserSchema.validate(addedUser, {abortEarly});
+ if (error) {
+     console.log(error);
+     res.send(error.details);
+     return;
+ };
 
-//validation
-    const {error, value} = validateNewUser(addedUser);
-    if (error) {
-        console.log(error);
-        res.send(error.details);
-        return;
-    }
+new sql.Request().query(`INSERT INTO users(user_name, user_email, user_password)
+VALUES ('${value.user_name}', '${value.user_email}', '${value.user_password}')`, (err, result)=>{
 
+    //ERROR AND RESPONSE
     if (err) {
         console.log("error occured in query", err ); 
     } else {
@@ -70,9 +64,9 @@ VALUES ('${addedUser.user_name}', '${addedUser.user_email}', '${addedUser.user_p
             success: true,
             message: "User added successfully",
             rowsAffected: result.rowsAffected    
-    });
+        });
     };
-});
+  });
 };
 
 
@@ -112,6 +106,15 @@ function editUser(req, res) {
     new sql.Request().query(`
         UPDATE users
         SET user_name = '${userEdits.user_name}', user_email = '${userEdits.user_email}', user_password = '${userEdits.user_password}' WHERE user_id = '${userToEditId}'`, (err, result)=>{
+
+            if (result.recordset === undefined) {
+                res.json({
+                    success: false,
+                    message: "User not found! "
+                });
+                return
+            };
+
             if (err) {
                 console.log("Error occured in query", err)
             }else{
@@ -126,19 +129,20 @@ function editUser(req, res) {
 
 //USER LOGIN
 async function loginUser(req, res) {
-    let userDetails = req.body;
-    //let encryptPassword = await bcrypt.hash(userDetails.user_password, 5)
-    //console.log(encryptPassword);
-    let requestedUser =  await new sql.Request().query(`select user_name, user_email, user_password from  users where user_email = '${userDetails.user_email}'`);
-    let user = requestedUser.recordset[0];
-
+let userDetails = req.body;
+    
 //validation
-    const {error, value} = validateLogin(userDetails);
+const {error, value} = loginSchema.validate(userDetails);
 if (error) {
     console.log(error);
-    res.send(error.details);
+    res.send(error.details.message);
     return;
-}
+};
+
+    //let encryptPassword = await bcrypt.hash(userDetails.user_password, 5)
+    //console.log(encryptPassword);
+    let requestedUser =  await new sql.Request().query(`select user_name, user_email, user_password from  users where user_email = '${value.user_email}'`);
+    let user = requestedUser.recordset[0];
 
 //response
     if (!user) {

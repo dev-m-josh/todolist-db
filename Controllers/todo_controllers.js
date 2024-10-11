@@ -1,6 +1,6 @@
 
 const sql = require("mssql");
-const { validateNewTodo } = require('../validators/validators');
+const { newTodoSchema } = require('../validators/validators');
 
 //GET ALL TODOS
 function getAllTodos(req, res) {
@@ -23,12 +23,6 @@ function getSingleTodoById(req, res) {
     let requestedId = req.params.todoId;
 
     new sql.Request().query(`select * from todos where todo_id = ${requestedId}`, (err, result)=>{
-
-        //ERROR
-        if (err) {
-            console.log("error occured in query", err ); 
-            return;
-        };
         
         //CHECK IF REQUESTED TODO IS AVAILABLE
         if (result.recordset[0] === undefined) {
@@ -38,6 +32,12 @@ function getSingleTodoById(req, res) {
             });
             return
         };
+        //ERROR
+        if (err) {
+            console.log("error occured in query", err ); 
+            return;
+        };
+
         //RESPONSE
         res.json(result.recordset[0]);
     });
@@ -46,26 +46,18 @@ function getSingleTodoById(req, res) {
 //ADD A NEW TODO
 function addNewTodo(req, res) {
     let addedTodo = req.body;
+    
+     //VALIDATE
+     const {error, value} = newTodoSchema.validate(addedTodo, {abortEarly: false});
+     if (error) {
+         console.log(error);
+         res.send(error.details);
+         return;
+     };
 
-    //CHECK IF ANY TODO DETAILS PASSED
-    if (addedTodo.todo_title === undefined) {
-        res.json({
-            success: false,
-            message: "No details passed!"
-        })
-        return
-    };
+    new sql.Request().query(`INSERT INTO todos(user_id, todo_title, todo_description, todo_deadline, todo_status) Values('${value.user_id}','${value.todo_title}', '${value.todo_description}', '${value.todo_deadline}', '${value.todo_status}')`, (err, result)=>{
 
-    new sql.Request().query(`INSERT INTO todos(user_id, todo_title, todo_description, todo_deadline, todo_status) Values('${addedTodo.user_id}','${addedTodo.todo_title}', '${addedTodo.todo_description}', '${addedTodo.todo_deadline}', '${addedTodo.todo_status}')`, (err, result)=>{
-
-        //VALIDATE
-        const {error, value} = validateNewTodo(addedTodo);
-        if (error) {
-            console.log(error);
-            res.send(error.details);
-            return;
-        }
-
+        //ERROR AND RESPONSE
         if (err) {
             console.log("error occured in query", err ); 
         } else {
@@ -137,7 +129,7 @@ function specificUserTodos(req, res) {
 FROM todos
 WHERE user_id = ${requestedUser} ORDER BY todo_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`, (err, result)=>{
 
-    //CHECK IF REQUESTED TODO IS AVAILABLE
+    //CHECK IF REQUESTED USER IS AVAILABLE
     if (result.recordset[0] === undefined) {
         res.json({
             success: false,

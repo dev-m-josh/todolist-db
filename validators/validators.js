@@ -6,7 +6,6 @@ const validator = (schema) => (payload) => schema.validate(payload, {abortEarly:
 
 //LOGIN SCHEMA
 const loginSchema = joi.object({
-    user_name: joi.string().required(),
     user_email: joi.string().required(),
     user_password: joi.string().min(8).max(64).required()
 });
@@ -18,6 +17,8 @@ const loginSchema = joi.object({
     user_password: joi.string().min(8).max(64).required()
 });
 
+
+
 // A NEW TODO
 const newTodoSchema = joi.object({
     user_id: joi.number().integer().required(),
@@ -27,8 +28,5 @@ const newTodoSchema = joi.object({
     todo_status:joi.number().required()
 });
 
-//VALIDATE ALL SCHEMAS
-let validateLogin = validator(loginSchema);
-let validateNewUser = validator(newUserSchema);
-let validateNewTodo = validator(newTodoSchema);
-module.exports = { validateLogin, validateNewUser, validateNewTodo };
+
+module.exports = { loginSchema, newUserSchema, newTodoSchema };
