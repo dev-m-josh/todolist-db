@@ -4,10 +4,9 @@ const { getSingleTodoById, getAllTodos, addNewTodo, deleteSingleTodoById, editTo
 
 //TODOS ROUTES
 todoRouter.get('/todos/:todoId', getSingleTodoById);
-todoRouter.get('/todos', getAllTodos);
 todoRouter.post('/todos', addNewTodo);
 todoRouter.delete('/todos/:todoId', deleteSingleTodoById);
-todoRouter.post('/todos/:todoId', editTodo);
+todoRouter.put('/todos/:todoId', editTodo);
 todoRouter.get('/todos/user/:userId', specificUserTodos);
 
 module.exports = { todoRouter };

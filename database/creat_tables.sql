@@ -19,15 +19,20 @@ CREATE DATABASE TodoList;
 CREATE TABLE users(
         user_id INT PRIMARY KEY IDENTITY(1, 1),
         user_name VARCHAR(50),
-        user_email VARCHAR(100) NOT NULL
+        user_email VARCHAR(100) NOT NULL,
+        user_password VARCHAR(255) NOT NULL
 );
+
+DROP TABLE users
 
 --todos table
 CREATE TABLE todos(
         todo_id INT PRIMARY KEY IDENTITY(1, 1),
-        user_id INT NOT NULL FOREIGN KEY REFERENCES users(user_id),
+        user_id INT FOREIGN KEY REFERENCES users(user_id),
         todo_title VARCHAR(50),
         todo_description VARCHAR(255),
         todo_deadline DATE,
         todo_status BIT NOT NULL
 );
+
+DROP TABLE todos

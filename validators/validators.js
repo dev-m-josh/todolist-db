@@ -1,9 +1,6 @@
 
 const joi = require('joi');
 
-//VALIDATOR FUNCTION
-const validator = (schema) => (payload) => schema.validate(payload, {abortEarly: false});
-
 //LOGIN SCHEMA
 const loginSchema = joi.object({
     user_email: joi.string().required(),
@@ -21,11 +18,8 @@ const loginSchema = joi.object({
 
 // A NEW TODO
 const newTodoSchema = joi.object({
-    user_id: joi.number().integer().required(),
     todo_title: joi.string().required(),
-    todo_description: joi.string().required(),
-    todo_deadline: joi.date().required(),
-    todo_status:joi.number().required()
+    todo_status:joi.boolean().required()
 });
 
 

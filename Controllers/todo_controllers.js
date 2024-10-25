@@ -4,12 +4,13 @@ const { newTodoSchema } = require('../validators/validators');
 
 //GET ALL TODOS
 function getAllTodos(req, res) {
+    let pool = req.pool
     //PAGINATION
     let { page, pageSize} = req.query;
     let offset = (Number(page)-1) * Number(pageSize);
 
     //GET ALL TODOS
-    new sql.Request().query(`select * from todos  ORDER BY todo_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`,(err, result)=>{
+    pool.query(`select * from todos  ORDER BY todo_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`,(err, result)=>{
         if (err) {
             console.log("error occured in query", err );
         }else{
@@ -20,9 +21,10 @@ function getAllTodos(req, res) {
 
 //GET TODO BY TODO_ID
 function getSingleTodoById(req, res) {
+    let pool = req.pool
     let requestedId = req.params.todoId;
 
-    new sql.Request().query(`select * from todos where todo_id = ${requestedId}`, (err, result)=>{
+    pool.query(`select * from todos where todo_id = ${requestedId}`, (err, result)=>{
         
         //CHECK IF REQUESTED TODO IS AVAILABLE
         if (result.recordset[0] === undefined) {
@@ -45,6 +47,7 @@ function getSingleTodoById(req, res) {
 
 //ADD A NEW TODO
 function addNewTodo(req, res) {
+    let pool = req.pool
     let addedTodo = req.body;
     
      //VALIDATE
@@ -55,7 +58,7 @@ function addNewTodo(req, res) {
          return;
      };
 
-    new sql.Request().query(`INSERT INTO todos(user_id, todo_title, todo_description, todo_deadline, todo_status) Values('${value.user_id}','${value.todo_title}', '${value.todo_description}', '${value.todo_deadline}', '${value.todo_status}')`, (err, result)=>{
+    pool.query(`INSERT INTO todos(todo_title, todo_status) Values('${value.todo_title}', '${value.todo_status}')`, (err, result)=>{
 
         //ERROR AND RESPONSE
         if (err) {
@@ -72,9 +75,10 @@ function addNewTodo(req, res) {
 
 //DELETE A SINGLE TODO BASED ON I'TS ID
 function deleteSingleTodoById(req, res) {
+    let pool = req.pool
     let requestedId = req.params.todoId;
     
-    new sql.Request().query(`DELETE FROM todos WHERE todo_id = ${requestedId}`, (err, result)=>{
+    pool.query(`DELETE FROM todos WHERE todo_id = ${requestedId}`, (err, result)=>{
 
     //CHECK IF REQUESTED TODO IS AVAILABLE
     if (result.recordset === undefined) {
@@ -101,12 +105,13 @@ function deleteSingleTodoById(req, res) {
 
 //EDITING A TODO
 function editTodo(req, res) {
+    let pool = req.pool
     let todoToEditId = req.params.todoId;
     let todoEdits = req.body;
 
-    new sql.Request().query(`
+    pool.query(`
         UPDATE todos
-        SET user_id =  '${todoEdits.user_id}',  todo_title = '${todoEdits.title}', todo_description = '${todoEdits.description}', todo_status = ${todoEdits.status}
+        SET todo_status = ${todoEdits.status}
         WHERE todo_id = '${todoToEditId}'`, (err, result)=>{
             if (err) {
                 console.log("Error occured in query", err)
@@ -122,10 +127,11 @@ function editTodo(req, res) {
 
 //GET ALL TODOS OF A SPECIFIC USER
 function specificUserTodos(req, res) {
+    let pool = req.pool
     let requestedUser = req.params.userId;
     let { page, pageSize} = req.query;
     let offset = (Number(page)-1) * Number(pageSize);
-    new sql.Request().query(`SELECT todo_id, todo_title, todo_description, todo_deadline, todo_status 
+    pool.query(`SELECT todo_id, todo_title, todo_description, todo_deadline, todo_status 
 FROM todos
 WHERE user_id = ${requestedUser} ORDER BY todo_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`, (err, result)=>{
 

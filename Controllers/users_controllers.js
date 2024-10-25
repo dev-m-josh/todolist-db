@@ -6,9 +6,10 @@ const { loginSchema, newUserSchema } = require('../validators/validators');
 
 //GET ALL USERS
 function getAllUsers(req, res) {
+    let pool = req.pool
     let { page, pageSize} = req.query;
     let offset = (Number(page)-1) * Number(pageSize);
-    new sql.Request().query(`select * from users  ORDER BY user_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`,(err, result)=>{
+    pool.query(`select * from users  ORDER BY user_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`,(err, result)=>{
         if (err) {
             console.log("error occured in query", err );
         }else{
@@ -19,8 +20,9 @@ function getAllUsers(req, res) {
 
 //GET SINGLE USER
 function getSingleUserById(req, res) {
+    let pool = req.pool
     let requestedUser = req.params.userId;
-    new sql.Request().query(`select user_name, user_email, user_password from users where user_id = ${requestedUser}`, (err, result)=>{
+    pool.query(`select user_name, user_email, user_password from users where user_id = ${requestedUser}`, (err, result)=>{
 
         //CHECK IF REQUESTED USER IS AVAILABLE
         if (result.recordset[0] === undefined) {
@@ -43,6 +45,7 @@ function getSingleUserById(req, res) {
 
 //ADDING A USER
 function addNewUser(req, res) {
+    let pool = req.pool
     let addedUser = req.body;
 
  //validation
@@ -53,7 +56,7 @@ function addNewUser(req, res) {
      return;
  };
 
-new sql.Request().query(`INSERT INTO users(user_name, user_email, user_password)
+pool.query(`INSERT INTO users(user_name, user_email, user_password)
 VALUES ('${value.user_name}', '${value.user_email}', '${value.user_password}')`, (err, result)=>{
 
     //ERROR AND RESPONSE
@@ -72,8 +75,9 @@ VALUES ('${value.user_name}', '${value.user_email}', '${value.user_password}')`,
 
 //DELETE A SINGLE USER BASED ON ID
 function deleteSingleUserById(req, res) {
+    let pool = req.pool
     let requestedId = req.params.userId;
-    new sql.Request().query(`DELETE FROM users WHERE user_id = ${requestedId};`, (err, result)=>{
+    pool.query(`DELETE FROM users WHERE user_id = ${requestedId};`, (err, result)=>{
 
         //ERROR CHECK
         if (err) {
@@ -100,10 +104,11 @@ function deleteSingleUserById(req, res) {
 
 //EDITING A USER
 function editUser(req, res) {
+    let pool = req.pool
     let userToEditId = req.params.userId;
     let userEdits = req.body;
 
-    new sql.Request().query(`
+    pool.query(`
         UPDATE users
         SET user_name = '${userEdits.user_name}', user_email = '${userEdits.user_email}', user_password = '${userEdits.user_password}' WHERE user_id = '${userToEditId}'`, (err, result)=>{
 
@@ -129,10 +134,12 @@ function editUser(req, res) {
 
 //USER LOGIN
 async function loginUser(req, res) {
+let pool = req.pool
+
 let userDetails = req.body;
     
 //validation
-const {error, value} = loginSchema.validate(userDetails);
+const {error, value} = loginSchema.validate(userDetails, {abortEarly: false});
 if (error) {
     console.log(error);
     res.send(error.details.message);
@@ -141,7 +148,7 @@ if (error) {
 
     //let encryptPassword = await bcrypt.hash(userDetails.user_password, 5)
     //console.log(encryptPassword);
-    let requestedUser =  await new sql.Request().query(`select user_name, user_email, user_password from  users where user_email = '${value.user_email}'`);
+    let requestedUser =  await pool.query(`select user_name, user_email, user_password from  users where user_email = '${value.user_email}'`);
     let user = requestedUser.recordset[0];
 
 //response
