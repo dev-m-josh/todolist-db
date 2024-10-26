@@ -65,9 +65,7 @@ function addNewTodo(req, res) {
             console.log("error occured in query", err ); 
         } else {
             res.json({
-                success: true,
-                message: "Todo added successfully",
-                rowsAffected: result.rowsAffected    
+                todo_title: addedTodo.todo_title   
         });
         };
     });
@@ -80,14 +78,14 @@ function deleteSingleTodoById(req, res) {
     
     pool.query(`DELETE FROM todos WHERE todo_id = ${requestedId}`, (err, result)=>{
 
-    //CHECK IF REQUESTED TODO IS AVAILABLE
-    if (result.recordset === undefined) {
-        res.json({
-            success: false,
-            message: "Todo not found!"
-        });
-        return;
-    };
+    // //CHECK IF REQUESTED TODO IS AVAILABLE
+    // if (result.recordset === undefined) {
+    //     res.json({
+    //         success: false,
+    //         message: "Todo not found!"
+    //     });
+    //     return;
+    // };
 
     //ERROR
     if (err) {
@@ -98,7 +96,7 @@ function deleteSingleTodoById(req, res) {
     res.json({
         success: true,
         message: "Todo deleted successfully!",
-        result: result.rowsAffected
+        // result: result.rowsAffected
     });
   });
 };
@@ -111,7 +109,7 @@ function editTodo(req, res) {
 
     pool.query(`
         UPDATE todos
-        SET todo_status = ${todoEdits.status}
+        SET todo_status = '${todoEdits.todo_status}'
         WHERE todo_id = '${todoToEditId}'`, (err, result)=>{
             if (err) {
                 console.log("Error occured in query", err)
