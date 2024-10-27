@@ -32,7 +32,7 @@ CREATE TABLE todos(
         todo_title VARCHAR(50),
         todo_description VARCHAR(255),
         todo_deadline DATE,
-        todo_status BOOLEAN DEFAULT FALSE NOT NULL
+        todo_status BIT NOT NULL
 );
 
 DROP TABLE todos

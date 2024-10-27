@@ -16,10 +16,4 @@ VALUES (1, 'creat a todolist database', 'link the database to the vs code and cr
         (5, 'Organize Digital Files', 'Sort through computer files and folders, deleting unnecessary documents and backing up important ones.', '2024/10/30', 0),
         (3, 'Update Resume', 'Revise the resume to include recent work experiences and skills for upcoming job applications.', '2024/11/21', 0);
 
-select * from users
-
-
-(select * from  users where user_name = 'Charlie Brown' )
-
-
 
